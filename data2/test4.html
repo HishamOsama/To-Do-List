@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+
+  <!-- Latest compiled JavaScript -->
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+  <script src="user4.json"></script>
+
+    
+  <script>
+
+    function task(id,name,date){
+        this.id = id;       
+        this.name = name;
+        this.date = date;
+    }
+    var z;
+    var a;
+    var x;
+    var y;
+    var hopa;
+    var myid= [];
+    myid.push(4);
+    var taskslist = [];
+    var taskslisttemp = [];
+    var inProgress = [];
+    var completed = [];
+    var archived = [];
+    var i=0;
+    var j=0;
+    var visCompleted = new Array(10).fill(0);
+
+    $( document ).ready(function() {
+        // Handler for .ready() called.
+        alert('Welcome Back!!!');
+
+        $.getJSON( "user4.json", function( data ) {
+        //jQuery probably has already parsed the json
+            var tmp;
+            var counter;
+            var tempbasic = data["taskslistArray[]"].length;
+            var temp1 = data["inProgressArray[]"].length;
+            var temp2 = data["completedArray[]"].length;
+            var temp3 = data["archivedArray[]"].length;
+            //alert('data1');
+            //alert(data["inProgressArray[]"][0].name);
+            
+            for(counter=0;counter<tempbasic;counter++)
+             {
+                tmp = new task("1", data["taskslistArray[]"][counter].name,data["taskslistArray[]"][counter].date);
+                taskslist.push(tmp);
+             }
+
+
+             for(counter=0;counter<temp1;counter++)
+             {
+                tmp = new task("1", data["inProgressArray[]"][counter].name,data["inProgressArray[]"][counter].date);
+                inProgress.push(tmp);
+             }
+
+            for(counter=0;counter<temp2;counter++)
+             {
+                tmp = new task("1", data["completedArray[]"][counter].name,data["completedArray[]"][counter].date);
+                completed.push(tmp);
+             }
+
+             for(counter=0;counter<temp3;counter++)
+             {
+                tmp = new task("1", data["archivedArray[]"][counter].name,data["archivedArray[]"][counter].date);
+                archived.push(tmp);
+             }
+
+        });
+
+    })
+
+
+    function cb(){
+        $('input[type="checkbox"].style2').checkbox({
+            buttonStyle: 'btn-base',
+            buttonStyleChecked: 'btn-success',
+            checkedClass: 'icon-check',
+            uncheckedClass: 'icon-check-empty'
+        });
+    }
+    
+    function forBadge() {
+        $('.availability span').html("your new string");
+    }
+
+    function sort1()
+    {
+        function compare(a,b)
+        {
+          if (a.name < b.name)
+           return -1;
+         else if (a.name > b.name)
+            return 1;
+          else
+            return 0;
+        }
+        taskslist.sort(compare);
+    }
+    function sort2()
+    {
+        function compare(a,b)
+        {
+          if (a.date < b.date)
+           return -1;
+         else if (a.date > b.date)
+            return 1;
+          else
+            return 0;
+        }
+        taskslist.sort(compare);
+    }
+   function deleteAll(k)
+   {
+        //1st argumnt is required index to remove ....2nd --> number of elements..
+        
+        var length2=inProgress.length;
+        var length1=completed.length;
+        for(a=0;a<length2;a++)
+        {
+            if(taskslist[k-10000].name===inProgress[a].name)
+            {
+                inProgress.splice(a, 1);
+                break;
+            }
+        }
+        for(z=0;z<length1;z++)
+        {
+            if(taskslist[k-10000].name===completed[z].name)
+            {
+                completed.splice(z, 1);
+                break;
+            }
+        }
+
+        
+
+        taskslist.splice(k-10000, 1);
+   }
+    
+    function showInputs(){
+        $(document).ready(function(){
+            $("#newTask").show(400);
+            $("#button2").show(400);
+            $("#button3").show(400);                                    
+        });
+    }
+    function hideInputs(){
+            $("#newTask").hide(400);
+            $("#button2").hide(400);        
+            $("#button3").hide(400);                        
+    }
+
+    function addTasks(){
+        x = new task(i+1,document.getElementById("name").value,document.getElementById("email").value);
+        y = new task(i+1+10000000,document.getElementById("name").value,document.getElementById("email").value);
+        taskslist.push(x);
+        inProgress.push(y);
+        i++;
+    }
+    function addDescription()
+    {
+        hopa = document.getElementById("message").value;
+        taskslisttemp.push(hopa);
+    }
+
+    function addCompleted(t)
+    {
+
+        y = new task(t+1-1000+1000000,taskslist[t-1000].name,taskslist[t-1000].date);
+        completed.push(y);
+        var length = inProgress.length;
+        var length2 = completed.length-1;
+
+        for(z=0; z< length; z++)
+        {
+            if(length2>=0)
+            {
+                if((inProgress[z].name)===(completed[length2].name))
+                {
+                    inProgress.splice(z,1);
+                    break;
+                }
+            }
+        }
+    }
+
+    function addCompletedForArcchived(t)
+    {
+        y = new task(t+1-1000500+1000000,archived[t-1000500].name,archived[t-1000500].date);
+        completed.push(y);
+        archived.splice(t-1000500,1);
+        drawArchived();
+    }
+    
+    function addArchived(t){
+        y = new task(t-100000,taskslist[t-100000].name,taskslist[t-100000].date)
+        taskslist.splice(t-100000, 1);
+        archived.push(y);
+    }
+    
+    //front end...........
+    function sendArrays() {
+     var arrays = 
+     {
+      'taskslistArray[]' : taskslist,
+      'inProgressArray[]': inProgress,
+      'completedArray[]': completed,
+      'archivedArray[]': archived,
+      'id[]': myid
+     }
+
+     $.ajax({
+      url: "http://127.0.0.1:8081/array",
+      type: "POST",
+      dataType: 'json',
+      contentType: 'application/json',
+      data: JSON.stringify(arrays)
+     });
+
+    }
+    //Drawin archived tasks..
+    function drawArchived(){
+        var text = "<table class=\"table table-inverse\" style=\"width:80%\" text-aligne=center;>";
+        text += "<tr>";
+        text += "<th></th>";
+        text += "<th><b>Task Name</b></th>";
+        text += "<th>Date</th>";
+        text += "<th>options</th>";
+        text += "<tbody><th></th>";
+        text += "</tr>";
+        for(j = 0; j<archived.length; j++)
+        {
+            text += "<tr  class=\"success\" <span title='"+taskslisttemp[j]+"'>hover me</span>>";
+            //its id is the same as foo()
+            text += "<td><input type='checkbox' id='" + (j + 1) +"'name='ossm'> <label for='ossm'>Checked</label></td>"
+            text += "<td>" + archived[j].name + "</td>";
+            text += "<td>" + archived[j].date + "</td>";
+            text += "<td>";
+            text += "        <!-- Single button -->";
+            text += "         <div class=\"btn-group\">";
+            text += "          <button type=\"button\" class=\"btn btn-default dropdown-toggle\" data-toggle=\"dropdown\">";
+            text += "           Action <span class=\"caret\"><\/span>";
+            text += "          <\/button>";
+            text += "            <ul class=\"dropdown-menu\" role=\"menu\">";
+            text += "            <li><a onclick=\"\" id='"+(j+100)+"' href=\"#\">Edit<\/a><\/li>";
+            text += "            <li> <a onclick=\"addCompletedForArcchived(this.id);\" id='"+(j+1000500)+"'  href=\"#\">Completed<\/a><\/li>";
+            text += "            <li><a onclick=\"deleteAll(this.id); drawArchived();\" id='"+(j+100500)+"' href=\"#\">Delete<\/a><\/li>";
+            text += "          <\/ul>";
+            text += "        <\/div>";
+            text += "<\/td>";
+
+            //text += "<td><input type='submit' value='task_' class='btn btn-primary btn-xs' onclick = \"alert(this.parentNode.parentNode.rowIndex)\" id=\"button_" + i + "\" /></td>";//
+            text += "</tr></tbody>";
+            }
+            var text2 = taskslist.length;
+            var text3 = completed.length;
+            var text4 = inProgress.length;
+            var text5 = archived.length;
+            document.getElementById("neverSleep1").textContent=String(text3);
+            document.getElementById("neverSleep2").textContent=String(text4);
+            document.getElementById("neverSleep3").textContent=String(text5);
+            document.getElementById("neverSleep").textContent= String(text2);
+            document.getElementById("myTable").innerHTML = text;
+    }
+
+    //draw Inprogress.
+    function drawInProgress(){
+        var text = "<table class=\"table table-inverse\" style=\"width:80%\" text-aligne=center;>";
+        text += "<tr>";
+        text += "<th></th>";
+        text += "<th><b>Task Name</b></th>";
+        text += "<th>Date</th>";
+        text += "<th>options</th>";
+        text += "<tbody><th></th>";
+        text += "</tr>";
+        for(j = 0; j<inProgress.length; j++)
+        {
+            text += "<tr  class=\"success\" <span title='"+taskslisttemp[j]+"'>hover me</span>>";
+            //its id is the same as foo()
+            text += "<td><input type='checkbox' id='" + (j + 1) +"'name='ossm'> <label for='ossm'>Checked</label></td>"
+            text += "<td>" + inProgress[j].name + "</td>";
+            text += "<td>" + inProgress[j].date + "</td>";
+            text += "<td>";
+            text += "        <!-- Single button -->";
+            text += "         <div class=\"btn-group\">";
+            text += "          <button type=\"button\" class=\"btn btn-default dropdown-toggle\" data-toggle=\"dropdown\">";
+            text += "           Action <span class=\"caret\"><\/span>";
+            text += "          <\/button>";
+            text += "        <\/div>";
+            text += "<\/td>";
+
+            //text += "<td><input type='submit' value='task_' class='btn btn-primary btn-xs' onclick = \"alert(this.parentNode.parentNode.rowIndex)\" id=\"button_" + i + "\" /></td>";//
+            text += "</tr></tbody>";
+            }
+            var text2 = taskslist.length;
+            var text3 = completed.length;
+            var text4 = inProgress.length;
+            var text5 = archived.length;
+            document.getElementById("neverSleep1").textContent=String(text3);
+            document.getElementById("neverSleep2").textContent=String(text4);
+            document.getElementById("neverSleep3").textContent=String(text5);
+            document.getElementById("neverSleep").textContent= String(text2);
+            document.getElementById("myTable").innerHTML = text;
+    }
+
+    function drawCompleted()
+    {
+        var text = "<table class=\"table table-inverse\" style=\"width:80%\" text-aligne=center;>";
+        text += "<tr>";
+        text += "<th></th>";
+        text += "<th><b>Task Name</b></th>";
+        text += "<th>Date</th>";
+        text += "<th>options</th>";
+        text += "<tbody><th></th>";
+        text += "</tr>";
+        for(j = 0; j<completed.length; j++)
+        {
+            text += "<tr  class=\"success\" <span title='"+taskslisttemp[j]+"'>hover me</span>>";
+            //its id is the same as foo()
+            text += "<td></td>"
+            text += "<td>" + completed[j].name + "</td>";
+            text += "<td>" + completed[j].date + "</td>";
+            text += "<td>";
+            
+            text += "<\/td>";
+
+            //text += "<td><input type='submit' value='task_' class='btn btn-primary btn-xs' onclick = \"alert(this.parentNode.parentNode.rowIndex)\" id=\"button_" + i + "\" /></td>";//
+            text += "</tr></tbody>";
+            }
+            var text2 = taskslist.length;
+            var text3 = completed.length;
+            var text4 = inProgress.length;
+            var text5 = archived.length;
+            document.getElementById("neverSleep1").textContent=String(text3);
+            document.getElementById("neverSleep2").textContent=String(text4);
+            document.getElementById("neverSleep3").textContent=String(text5);
+            document.getElementById("neverSleep").textContent= String(text2);
+            document.getElementById("myTable").innerHTML = text;
+    }
+
+    function deletingByButton()
+    {
+        var t = 0;
+        if(confirm('Are you really sure?')){
+        for(z=0; z<taskslist.length; z++)
+           {
+               //unary plus//..
+               var taskId = 149+(+taskslist[z].id);
+               if(document.getElementById(""+taskId).checked)
+               {
+                   deleteAll(z+10000);
+                   z--;
+               }
+ 
+           }  
+           
+           drawTable();
+       }
+   }
+ 
+   function showDeleteButton()
+   {
+
+       if(isChecked())
+       {
+           var  text = "<button class='btn btn-danger btn-lg'  onclick='deletingByButton();sendArrays();' data-toggle='modal'>Delete selected</button>";
+            document.getElementById("deleteSelected").innerHTML = text;
+        }
+        else
+        {
+            var text ="";
+            document.getElementById("deleteSelected").innerHTML = text;
+            drawTable();          
+        }
+ 
+    }
+ 
+    //this fiunction checks wether is there any checkbox is checked or not..
+    function isChecked()
+    {
+        for(z=0; z<taskslist.length; z++)
+       {
+           //unary plus/..
+           var taskId = 149+(+taskslist[z].id);
+           if(document.getElementById(""+taskId).checked)
+           {
+               return true;
+           }
+       }
+       return false;  
+   }
+
+   function edit2(t)
+   {
+    var bubsy;
+    var lutsy;
+    bubsy= document.getElementById("name2").value;
+    lutsy= document.getElementById("email2").value;
+    taskslist[t].name=bubsy;
+    taskslist[t].date=lutsy;
+   }
+
+   function performTheEdit(t)
+   {
+    var tempooo;
+    tempooo=t-25;
+    var text="";
+    text += "<button class=\"btn btn-primary btn-lg\" data-toggle=\"modal\" data-target=\"#myModalHorizontal2\"> <\/button>";
+    text += "";
+    text += "    <div class=\"modal fade\" id=\"myModalHorizontal2\" tabindex=\"-1\" role=\"dialog\" ";
+    text += "    aria-labelledby=\"myModalLabel\" aria-hidden=\"true\">";
+    text += "";
+    text += "    <div class=\"modal-dialog\">";
+    text += "        <div class=\"modal-content\">";
+    text += "            <!-- Modal Header -->";
+    text += "            <div class=\"modal-header\">";
+    text += "                <button type=\"button\" class=\"close\" ";
+    text += "                   data-dismiss=\"modal\">";
+    text += "                       <span aria-hidden=\"true\">&times;<\/span>";
+    text += "                       <span class=\"sr-only\">Close<\/span>";
+    text += "                <\/button>";
+    text += "                <h4 class=\"modal-title\" id=\"myModalLabel2\">";
+    text += "                    NEW TASK";
+    text += "                <\/h4>";
+    text += "            <\/div>";
+    text += "            ";
+    text += "            <!-- Modal Body -->";
+    text += "            <div class=\"modal-body\">";
+    text += "";
+    text += "    <form id=\"selena2\" action=\"\" method=\"get\">";
+    text += "    <label>Due Date of the task* :<\/label>";
+    text += "<input id=\"email2\" name=\"email\" value=\"1\" placeholder=\"pick your date from the date picker\" type=\"date\" value=\"\">";
+    text += "<br>";
+    text += "<br>";
+    text += "<br>";
+    text += "<label>Task Name* :<\/label>";
+    text += "<input id=\"name2\" name=\"name\" value=\"2\" placeholder=\"Ex: Task #\" type=\"text\" value=\"\">";
+    text += "<br>";
+    text += "<br>";
+    text += "<br>";
+    text += "<label>Description :<\/label>";
+    text += "<textarea id=\"message2\" value=\"3\" placeholder=\"(optional)\"><\/textarea>";
+    text += "<br>";
+    text += "<br>";
+    text += "<br>";
+    text += "<p>* This field is required<\/p>";
+    text += "<input id=\"submit\" type=\"submit\" data-dismiss=\"modal\" onclick=\"edit2("+tempooo+");drawTable();\" value=\"Submit\">";
+    text += "<\/form>";
+    text += "";
+    text += "            ";
+    text += "           <\/div>";
+    text += "                  ";
+    text += "                ";
+    text += "                ";
+    text += "          <!-- Modal Footer -->";
+    text += "            <div class=\"modal-footer\">";
+    text += "                <button type=\"button\" class=\"btn btn-default\"";
+    text += "                        data-dismiss=\"modal\">";
+    text += "                            Close";
+    text += "                <\/button>";
+    text += "                ";
+    text += "            <\/div>";
+    text += "        <\/div>";
+    text += "    <\/div>";
+    text += "<\/div>";
+    text += "";
+    document.getElementById("myTable").innerHTML = text;
+
+   }
+
+
+   function myFunctionlol() {
+    document.getElementById("selena").reset();
+}
+
+    function drawTable(){ //var text = //document.getElementById("myTable").innerHTML;
+        //1??????
+        text = "<table id=\"Adele\" class=\"hoverTable\" style=\"width:80%\" text-aligne=center;>";
+        text += "<tr>";
+        text += "<th></th>";
+        text += "<th><b>Task Name</b></th>";
+        text += "<th>Date</th>";
+        text += "<th>options</th>";
+        text += "<tbody><th></th>";
+        text += "</tr>";    
+        for(i = 0; i<taskslist.length; i++)
+        {
+            text += "<tr  class=\"success\" <span title='"+taskslisttemp[i]+"'>hover me</span>>";
+            text += "<td><input type='checkbox' onclick='showDeleteButton();' id='" + (i+150) +"'name='ossm'> <label for='ossm'>Checked</label></td>"
+            text += "<td>" + taskslist[i].name + "</td>";
+            text += "<td>" + taskslist[i].date + "</td>";
+            text += "<td>";
+            text += "        <!-- Single button -->";
+            text += "         <div class=\"btn-group\">";
+            text += "          <button type=\"button\" class=\"btn btn-default dropdown-toggle\" data-toggle=\"dropdown\">";
+            text += "           Action <span class=\"caret\"><\/span>";
+            text += "          <\/button>";
+            text += "          <ul class=\"dropdown-menu\" role=\"menu\">";
+            text += "            <li><a onclick=\"performTheEdit(this.id);sendArrays();\" class=\"btn btn-primary btn-lg\" data-toggle=\"modal\" data-target=\"#myModalHorizontal2\" id='"+(i+25)+"' href=\"#\">Edit<\/a><\/li>";
+            text += "            <li> <a onclick=\"addCompleted(this.id);sendArrays();\" id='"+(i+1000)+"'  href=\"#\">Completed<\/a><\/li>";
+            text += "            <li><a onclick=\"confirm('Are you really sure?') && deleteAll(this.id); drawTable();sendArrays();\" id='"+(i+10000)+"' href=\"#\">Delete<\/a><\/li>";
+            text += "            <li><a id='"+(i+100000)+"' onclick=\"addArchived(this.id);drawTable();sendArrays();\" href=\"#\">Archived<\/a><\/li>";
+            text += "          <\/ul>";
+            text += "        <\/div>";
+            text += "<\/td>";
+
+            //text += "<td><input type='submit' value='task_' class='btn btn-primary btn-xs' onclick = \"alert(this.parentNode.parentNode.rowIndex)\" id=\"button_" + i + "\" /></td>";//
+            text += "</tr></tbody>";
+            }
+            var text2 = taskslist.length;
+            var text3 = completed.length;
+            var text4 = inProgress.length;
+            var text5 = archived.length;
+            document.getElementById("neverSleep1").textContent=String(text3);
+            document.getElementById("neverSleep2").textContent=String(text4);
+            document.getElementById("neverSleep3").textContent=String(text5);
+            document.getElementById("neverSleep").textContent= String(text2);
+            document.getElementById("myTable").innerHTML = text;
+        }
+        
+
+$(document).ready(function() {
+$("#submit").attr('disabled', 'disabled');
+$("form").keyup(function() {
+// To Disable Submit Button
+$("#submit").attr('disabled', 'disabled');
+// Validating Fields
+var name = $("#name").val();
+var email = $("#email").val();
+
+if (!(name == "" || email == "")) {
+// To Enable Submit Button
+$("#submit").removeAttr('disabled');
+$("#submit").css({
+"cursor": "pointer",
+"box-shadow": "1px 0px 6px #333"
+});
+
+}
+});
+// On Click Of Submit Button
+$("#submit").click(function() {
+$("#submit").css({
+"cursor": "default",
+"box-shadow": "none"
+});
+});
+});
+
+$('#taskName').removeAttr('hello');
+
+
+
+
+    </script>
+    
+    <title> Phase lala</title>
+    
+    
+    <style>
+    #header {
+    font-size: 17px;
+    background-color:#8B0000;
+    color:white;
+    text-align:center;
+    pDoneing:5px;
+    }
+    
+    #margin {
+    line-height:30px;
+    height:300px;
+    width:20%;
+    float:left;
+    padding:5px;          
+    }
+    
+    #main {
+    width:70%;
+    float:left;
+    padding:10px;    
+
+    }
+    
+    #footer {
+    background-color:#8B0000;
+    color:white;
+    clear:both;
+    font-size: 17px;
+    text-align:center;
+    padding:5px; 
+    position:fixed;
+    bottom:0;
+    left:0;
+    right: 0;
+    }
+    input[type=checkbox] + label {
+         color: #ccc;
+         font-style: italic;
+    } 
+    input[type=checkbox]:checked + label {
+         color: #8FBC8F;
+         font-style: normal;
+    } 
+    #ssss { 
+        color:#8B0000;
+        font-size: 18px;
+    }
+    #ssss:hover {
+        text-shadow: hsla();
+        cursor:pointer;
+        color:blue; 
+    }
+
+
+    .hoverTable{
+        width:100%; 
+        border-collapse:collapse; 
+    }
+    .hoverTable td{ 
+        padding:7px; border:#4e95f4 1px solid;
+    }
+    /* Define the default color for all the table rows */
+    .hoverTable tr{
+        background: #b8d1f3;
+    }
+    /* Define the hover highlight color for the table row */
+    .hoverTable tr:hover {
+          background-color: #ffff99;
+    }
+
+
+    button.btn-default{ visibility: hidden;}
+    tr:hover button.btn-default{ visibility: visible;}
+
+
+.message{
+    display:none;
+    color:#000;
+    background:#999;
+    position:absolute;
+    top:10px;
+}
+
+#Demi:hover + .message{
+    display:block !important;
+    z-index:10;
+}
+    </style>
+    
+</head>
+<body>
+
+    <div id="header"> ToDo list </div>
+    <div id="margin"> 
+    <button type="button" id="all" onclick="drawTable();" class="btn btn-primary btn-ms">All Tasks
+        <span id="neverSleep" class="badge">  </span>
+    </button>
+    <br>
+    <br>
+    <button type="button" id="completed" onclick="drawCompleted();" class="btn btn-primary">Completed
+        <span id="neverSleep1" class="badge">  </span>
+    </button>
+    <br>
+    <br>
+    <button type="button" id="inProgress" onclick="drawInProgress();" class="btn btn-primary">In Progress
+        <span id="neverSleep2" class="badge">  </span>
+    </button>
+    <br>
+    <br>
+    <button type="button" id="archived" onclick="drawArchived();" class="btn btn-primary">Archived
+        <span id="neverSleep3" class="badge">  </span>
+    </button>
+    <br>
+    <br>
+    </div>
+    
+    <div id="main" class="container"> 
+
+    <br>
+    <br>
+    <p id="myTable"> </p>
+
+
+
+    <!-- Button trigger modal -->
+    <button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModalHorizontal">
+    NEW TASK
+    </button>
+
+    <!-- Modal -->
+    <div class="modal fade" id="myModalHorizontal" tabindex="-1" role="dialog" 
+    aria-labelledby="myModalLabel" aria-hidden="true">
+
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <button type="button" class="close" 
+                   data-dismiss="modal">
+                       <span aria-hidden="true">&times;</span>
+                       <span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    NEW TASK
+                </h4>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="modal-body">
+
+    <form id="selena" action="" method="get">
+    <label>Due Date of the task* :</label>
+<input id="email" class="form-control" name="email" placeholder="pick your date from the date picker" type="date" value="">
+<br>
+<br>
+<br>
+<label>Task Name* :</label>
+<input id="name" class="form-control" name="name" placeholder="Ex: Task #" type="text" value="">
+<br>
+<br>
+<br>
+<label>Description :</label>
+<textarea id="message" class="form-control" placeholder="(optional)"></textarea>
+<br>
+<br>
+<br>
+<p>* This field is required</p>
+<button id="submit" type="submit" class="btn btn-primary btn-lg" onclick="addTasks();addDescription();drawTable();sendArrays();" data-dismiss="modal">
+    Add task
+</button>
+</form>
+
+            
+           </div>
+           <!-- Modal Footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default"
+                        data-dismiss="modal">
+                            Close
+                </button>
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+    <p id="deleteSelected"></p>
+
+
+<div class="dropdown">
+  <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Sorting
+  <span class="caret"></span></button>
+  <ul class="dropdown-menu">
+     <li><a onclick="sort1();drawTable();sendArrays();" href="#">Sort by Name</a></li>
+    <li><a onclick="sort2();drawTable();sendArrays();" href="#">Sort by Date</a></li>
+  </ul>
+</div>
+
+
+    <br>
+    <br>
+    <br>
+    <form action="http://127.0.0.1:8081/logout" method="POST">
+
+    <input type="submit" onclick = "sendArrays();" value="LOG OUT">
+
+    </form>
+
+
+    <!--<p id="ssss" onclick="showInputs();" style="display:none"; color="red";>+ Add Task </p>-->
+
+    
+    
+    
+    <div id="footer">
+    All Copyright are Reserved 
+    </div>
+
+</body>
+</html>
